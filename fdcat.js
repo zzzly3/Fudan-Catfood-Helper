@@ -1,14 +1,6 @@
 // Fudan Cat Food Helper
 // Author: zzzly3
 // Date: May 18, 2022
-// Usage
-// 0. open the webpage in mobile mode and run the code
-// 1. call remove() to hide the cover and draft your choices
-// 2. call test() to test the latency
-// 3. call adjust(i) to add more submit time points,
-//    where i is the index (starting from 1) of the last request whose server time is less than the expected time
-// 4. call start() to start the work
-// 5. just take a drink and wait for your cat food :)
 
 const remove = () =>
 document.querySelector("#root > div > div.src-newform-mobile-pages-form-write-index__formContentWrap > div > div.src-newform-common-form-write-common-OutPeriodModal-m_index__out-period")
@@ -27,13 +19,14 @@ const start_time = () => {
     return t.getTime();
 }
 
-const cat_start_time = -9000;
+const cat_start_time = -10000;
 const roll_start_time = -1800;
 const roll_stop_time = 0;
 let hook_submit_time = [];
 
 const adjust = i => {
-    hook_submit_time = [-1000, -800, -600, -400, -200, 0];
+    hook_submit_time = [-2500, -2400, -2300, -2200, -2100, -2000, -1900, -1800, -1700, -1600, 
+                        -1400, -1200, -1000, -800, -600, -300, 0];
     if (i <= 0 || i >= hook_submit_time.length)
         return;
     for (let j = hook_submit_time[i - 1] - 60; j <= hook_submit_time[i] + 60; j += 20)
