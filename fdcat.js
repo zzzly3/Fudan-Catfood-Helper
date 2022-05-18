@@ -1,6 +1,10 @@
 // Fudan Cat Food Helper
 // Author: zzzly3
 // Date: May 18, 2022
+// Usage:
+// 1. call remove() to hide the cover
+// 2. call start() to start the work
+// 3. maybe you need to adjust hook_submit_time?
 
 const remove = () =>
 document.querySelector("#root > div > div.src-newform-mobile-pages-form-write-index__formContentWrap > div > div.src-newform-common-form-write-common-OutPeriodModal-m_index__out-period")
@@ -22,20 +26,8 @@ const start_time = () => {
 const cat_start_time = -10000;
 const roll_start_time = -1800;
 const roll_stop_time = 0;
-let hook_submit_time = [];
-
-const adjust = i => {
-    hook_submit_time = [-2500, -2400, -2300, -2200, -2100, -2000, -1900, -1800, -1700, -1600, 
+const hook_submit_time = [-2500, -2400, -2300, -2200, -2100, -2000, -1900, -1800, -1700, -1600, 
                         -1400, -1200, -1000, -800, -600, -300, 0];
-    if (i <= 0 || i >= hook_submit_time.length)
-        return;
-    for (let j = hook_submit_time[i - 1] - 60; j <= hook_submit_time[i] + 60; j += 20)
-        if (hook_submit_time.indexOf(j) === -1)
-            hook_submit_time.push(j);
-    hook_submit_time.sort((x, y) => x - y);
-    console.log('Cat: submit time has been adjusted to %s', hook_submit_time.toString());
-}
-adjust(0);
 
 const timer = (func, arg) => {
     const a = (new Date()).getTime();
