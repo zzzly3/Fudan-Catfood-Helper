@@ -3,8 +3,10 @@
 // Date: May 18, 2022
 // Usage:
 // 1. call remove() to hide the cover
-// 2. call start() to start the work
-// 3. maybe you need to adjust hook_submit_time?
+// 2. call test() to test the latency
+// 3. call adjust(i) to adjust the submit time points,
+//    where i is the last rid of requests whose server time is less than expected
+// 4. call start() to start the work
 
 const remove = () =>
 document.querySelector("#root > div > div.src-newform-mobile-pages-form-write-index__formContentWrap > div > div.src-newform-common-form-write-common-OutPeriodModal-m_index__out-period")
@@ -26,8 +28,24 @@ const start_time = () => {
 const cat_start_time = -10000;
 const roll_start_time = -1800;
 const roll_stop_time = 0;
-const hook_submit_time = [-2500, -2400, -2300, -2200, -2100, -2000, -1900, -1800, -1700, -1600, 
-                        -1400, -1200, -1000, -800, -600, -300, 0];
+let hook_submit_time = [-2400, -2100, -1800, -1500, -1200, -900, -600, -300, 0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400];
+
+const adjust = i => {
+    const a = [0];
+    if (i <= 0 || i >= hook_submit_time.length) {
+        console.error('Cat: adjust out of range');
+        return;
+    }
+    if (hook_submit_time.length >= 20) {
+        console.error('Cat: can only adjust once');
+        return;
+    }
+    for (let j = hook_submit_time[i - 1] - 60; j <= hook_submit_time[i] + 60; j += 20)
+        a.push(j);
+    a.sort((x, y) => x - y);
+    hook_submit_time = a;
+    console.info('Cat: submit time has been adjusted to %s', hook_submit_time.toString());
+}
 
 const timer = (func, arg) => {
     const a = (new Date()).getTime();
@@ -90,7 +108,7 @@ const method_hook = () => {
         if (req.length > 0)
             trigger(req[0].t, do_req);
         else
-            console.log('Cat: done');
+            console.info('Cat: done');
     };
     const make_req = cnt => {
         const r = prepare();
@@ -129,24 +147,28 @@ const method_hook = () => {
             this._fake = n.indexOf && (n.indexOf('/check') > -1 || 
                 (!(do_reduce && test_time === -1) && n.indexOf('/reduce') > -1)); // dont submit reduce when testing
             this._catch = n.indexOf && n.indexOf('/commit_aggregation') > -1;
+            if (this._catch && !do_reduce) {
+                req.push({t: hook_submit_time[req.length], f: () => this._xhr.send(this._data)});
+                this._rid = req.length;
+                n += "&r=" + this._rid;
+            }
             return this._xhr.open(t, n);
         };
         this.send = n => {
             // console.log(this._xhr);
+            this._data = n;
             if (this._fake) {
                 setTimeout(this._cb, 0);
             } else if (this._catch) {
                 if (do_reduce) { // all prepared
-                    console.log('Cat: reduce the stock at %dms', (new Date().getTime() - start_time()));
-                    console.log('Cat: preparations done, wait for the expected time');
+                    console.info('Cat: reduce the stock at %dms', (new Date().getTime() - start_time()));
+                    console.info('Cat: preparations done, wait for the expected time');
                     window.XMLHttpRequest = xhr;
                     this._rid = -1;
                     this._xhr.send(n);
                 } else {
-                    req.push({t: hook_submit_time[req.length], f: () => this._xhr.send(n)});
-                    this._rid = req.length;
                     console.log('Cat: req %d prepared at %dms', this._rid, (new Date().getTime() - start_time()));
-                    if (req.length >= hook_submit_time.length) {
+                    if (this._rid >= hook_submit_time.length) {
                         do_reduce = true;
                         make_req(1);
                         trigger(req[0].t, do_req);
@@ -167,14 +189,14 @@ const start_secondary = func => {
         setTimeout(() => start_secondary(func), 200);
         return;
     }
-    console.log('Cat: start at %dms', t);
+    console.info('Cat: start at %dms', t);
     func();
 }
 
 const start = (method="hook", test=false) => {
     test_time = -1;
     if (test) {
-        console.log("Cat: in test mode");
+        console.info("Cat: in test mode");
         test_time = (Math.round((new Date()).getTime() / 1000) + 10) * 1000;
     }
     const methods = [
@@ -183,9 +205,9 @@ const start = (method="hook", test=false) => {
     ];
     const m = methods.find(e => e.name == method);
     if (!m)
-        console.log('Cat: unknown method %s', method);
+        console.error('Cat: unknown method %s', method);
     else {
-        console.log('Cat: will try method *%s* at %s', m.name, new Date(start_time()).toLocaleString());
+        console.info('Cat: will try method *%s* at %s', m.name, new Date(start_time()).toLocaleString());
         start_secondary(m.func);
     }
 }
