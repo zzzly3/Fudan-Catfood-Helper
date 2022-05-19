@@ -31,7 +31,7 @@ const roll_stop_time = 500;
 let hook_submit_time = [-2400, -2100, -1800, -1500, -1200, -900, -600, -300, 0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400];
 
 const adjust = i => {
-    const a = [0];
+    const a = [];
     if (i <= 0 || i >= hook_submit_time.length) {
         console.error('Cat: adjust out of range');
         return;
@@ -40,7 +40,7 @@ const adjust = i => {
         console.error('Cat: can only adjust once');
         return;
     }
-    for (let j = hook_submit_time[i - 1] - 60; j <= hook_submit_time[i] + 60; j += 20)
+    for (let j = hook_submit_time[i - 1] - 80; j <= hook_submit_time[i] + 80; j += 20)
         a.push(j);
     a.sort((x, y) => x - y);
     hook_submit_time = a;
