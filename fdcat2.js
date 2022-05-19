@@ -77,9 +77,10 @@ const make_req = cnt => {
         setTimeout(() => make_req(cnt), 1);
 }
 
-const start_req = (i, r) => {
+const start_req = r => {
     const st = start_time();
     let nt = submit_start;
+    let i = 1;
     let okresp = null;
     let finish = 0;
     while (i <= submit_count) {
@@ -154,7 +155,7 @@ const catch_req = () => {
                         console.info('Cat: reduce the stock at %dms', (new Date().getTime() - start_time()));
                     console.info('Cat: caught request at %dms', (new Date().getTime() - start_time()));
                     window.XMLHttpRequest = xhr;
-                    trigger(submit_start, () => start_req(1, this));
+                    trigger(submit_start, () => start_req(this));
                 } else
                     return this._xhr.send(n);
             }
