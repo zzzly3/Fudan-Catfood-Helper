@@ -26,8 +26,8 @@ const start_time = () => {
 }
 
 const cat_start_time = -10000;
-const roll_start_time = -1800;
-const roll_stop_time = 0;
+const roll_start_time = -1500;
+const roll_stop_time = 500;
 let hook_submit_time = [-2400, -2100, -1800, -1500, -1200, -900, -600, -300, 0, 300, 600, 900, 1200, 1500, 1800, 2100, 2400];
 
 const adjust = i => {
